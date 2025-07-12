@@ -89,10 +89,10 @@
 <body>
   <div class="container">
     <h2>Login to Snap Shot</h2>
-    <form id="loginForm">
+    <!-- ✅ FORM posts to /login and backend handles redirect -->
+    <form method="POST" action="/login">
       <input
         type="email"
-        id="loginEmail"
         name="email"
         placeholder="Enter your email"
         required
@@ -100,7 +100,6 @@
       <input
         type="password"
         name="password"
-        id="loginPassword"
         placeholder="Enter your password"
         required
       />
@@ -110,22 +109,5 @@
       Don't have an account? <a href="sign.html">Sign up</a>
     </div>
   </div>
-
-  <script>
-    document.getElementById("loginForm").addEventListener("submit", function (e) {
-      e.preventDefault();
-      const email = document.getElementById("loginEmail").value.trim();
-      const password = document.getElementById("loginPassword").value.trim();
-
-      if (!email || !password) {
-        alert("Please enter email and password");
-        return;
-      }
-
-      // You can replace this with actual authentication logic
-      alert("Login successful!");
-      window.location.href = "/select-room"; // Redirect to room selection page
-    });
-  </script>
 </body>
 </html>

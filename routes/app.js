@@ -1,81 +1,76 @@
 const express = require("express");
-const bodyParser = require("body-parser");
-const bcrypt = require("bcrypt");
-const path = require("path");
-const mongoose = require("mongoose");
-require("../db"); 
-const app = express();
+const router = express.Router();
+const User = require("../models/User"); // Mongoose User model
 
-const loginPath = path.join(__dirname, "../public/");
+// =======================
+// Signup Route
+// =======================
+router.post("/signup", async (req, res) => {
+  const { name, email, password } = req.body;
 
-const User = require("../models/User");
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
-app.post("/register", async (req, res) => {
-  const { email, password, confirm_password } = req.body;
-
-  if (!email || !password || !confirm_password) {
-    return res.status(400).send("All fields are required");
-  }
-
-  if (password !== confirm_password) {
-    return res.status(400).send("Passwords do not match");
-  }
+  console.log("📥 Signup data received:", { name, email, password });
 
   try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const userData = {
-      email: email,
-      password: hashedPassword,
-    };
-
-
     // Check if user already exists
-    const existingUser = await User.findOne({ email: email });
-    console.log("Existing user:", existingUser); // Add this line for debugging
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).send("Email already registered");
+      return res.send("<script>alert('❌ User already exists'); window.location='/register';</script>");
     }
 
-    // Create new user
-    const newUser = new User(userData);
+    // Save new user
+    const newUser = new User({ name, email, password });
     await newUser.save();
 
-    res.sendFile(path.join(loginPath, "login.html"));
+    console.log("✅ User saved:", newUser);
+
+    res.send("<script>alert('✅ Signup successful! Please log in.'); window.location='/';</script>");
   } catch (err) {
-    console.error(err);
-    res.status(500).send("Error registering user");
+    console.error("❌ Signup error:", err.message);
+    res.status(500).send("<script>alert('Server error. Please try again.'); window.location='/register';</script>");
   }
 });
 
-// Define a route to handle user login
-app.post("/login", async (req, res) => {
+// =======================
+// Login Route
+// =======================
+router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).send("Email and password are required");
-  }
+  console.log("🔐 Login attempt:", { email });
 
   try {
-    // Find user by email
-    const user = await User.findOne({ email: email });
-    if (!user) {
-      return res.status(404).send("User not found. Please register.");
+    const user = await User.findOne({ email });
+
+    if (!user || user.password !== password) {
+      return res.send("<script>alert('❌ Invalid email or password'); window.location='/';</script>");
     }
 
-    // Compare passwords
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    if (passwordMatch) {
-      return res.sendFile(path.join(loginPath, "index.html"));
-    } else {
-      return res.status(401).send("Incorrect password");
-    }
+    // Store user session
+    req.session.user = {
+      id: user._id,
+      name: user.name,
+      email: user.email
+    };
+
+    console.log("✅ Login successful for:", user.email);
+
+    res.redirect("/select-room"); // ✅ Redirect to room selection
   } catch (err) {
-    console.error(err);
-    res.status(500).send("Error logging in");
+    console.error("❌ Login error:", err.message);
+    res.status(500).send("<script>alert('Server error. Please try again.'); window.location='/';</script>");
   }
 });
 
-module.exports = app;
+// =======================
+// Logout Route
+// =======================
+router.get("/logout", (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      console.error("❌ Logout error:", err.message);
+    }
+    res.redirect("/");
+  });
+});
+
+module.exports = router;

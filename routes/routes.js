@@ -1,23 +1,20 @@
 const express = require("express");
-const fs = require("fs");
 const path = require("path");
 
 const router = express.Router();
+const loginPath = path.join(__dirname, "../public/");
 
-const loginPath = path.join(__dirname, "../public/"); 
-
-router.get("/", function (req, res) {
+router.get("/", (req, res) => {
   res.sendFile(path.join(loginPath, "login.html"));
 });
 
-router.get("/select-room", function (req, res) {
-  res.sendFile(path.join(loginPath, "index.html")); // serves index.html
-});
-
-
-router.get("/register", function (req, res) {
+router.get("/register", (req, res) => {
   res.sendFile(path.join(loginPath, "sign.html"));
 });
 
+router.get("/select-room", (req, res) => {
+  if (!req.session.user) return res.redirect('/');
+  res.sendFile(path.join(loginPath, "index.html"));
+});
 
 module.exports = router;

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>Sign Up | Snap Shot Chat</title>
+  <link rel="stylesheet" href="style1.css" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-image: url('images/chat1.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      background-color: rgba(255, 255, 255, 0.12);
+      padding: 40px 30px;
+      border-radius: 15px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+      color: white;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .container h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      font-size: 24px;
+    }
+
+    .container input[type="text"],
+    .container input[type="email"],
+    .container input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+
+    .btn:hover {
+      background-color: #45a049;
+    }
+
+    .signup {
+      margin-top: 15px;
+      text-align: center;
+    }
+
+    .signup a {
+      color: #00f;
+      text-decoration: none;
+    }
+
+    .signup a:hover {
+      text-decoration: underline;
+    }
+
+    .error-message {
+      color: #ff4d4d;
+      font-size: 14px;
+      margin: 5px 0 -5px 0;
+      display: none;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        margin: 20px;
+        padding: 30px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Create an Account</h2>
+    <form id="registrationForm">
+      <input
+        type="text"
+        id="signupName"
+        name="name"
+        placeholder="Enter your name"
+        required
+      />
+      <input
+        type="email"
+        id="signupEmail"
+        name="email"
+        placeholder="Enter your email"
+        required
+      />
+      <input
+        type="password"
+        id="signupPassword"
+        name="password"
+        placeholder="Enter your password"
+        required
+      />
+      <input
+        type="password"
+        id="confirmPassword"
+        placeholder="Confirm password"
+        required
+      />
+      <p class="error-message" id="errorText"></p>
+      <input type="submit" class="btn" value="Sign Up" />
+    </form>
+    <div class="signup">
+      Already have an account? <a href="login.html">Login</a>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("registrationForm").addEventListener("submit", function (event) {
+      event.preventDefault();
+
+      const name = document.getElementById("signupName").value.trim();
+      const email = document.getElementById("signupEmail").value.trim();
+      const password = document.getElementById("signupPassword").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+      const errorText = document.getElementById("errorText");
+
+      // Password validation: at least 6 characters and 1 uppercase letter
+      const passwordRegex = /^(?=.*[A-Z]).{6,}$/;
+
+      if (!passwordRegex.test(password)) {
+        errorText.textContent = "Password must be at least 6 characters and contain at least one uppercase letter.";
+        errorText.style.display = "block";
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        errorText.textContent = "Passwords do not match.";
+        errorText.style.display = "block";
+        return;
+      }
+
+      errorText.style.display = "none";
+
+      // Save user to localStorage (you can replace this with DB logic later)
+      const userData = localStorage.getItem("userData");
+      const users = userData ? JSON.parse(userData) : [];
+      users.push({ name, email, password });
+      localStorage.setItem("userData", JSON.stringify(users));
+
+      alert("Signup successful!");
+      window.location.href = "/"; // Redirect to login
+    });
+  </script>
+</body>
+</html>

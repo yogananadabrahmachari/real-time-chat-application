@@ -1,73 +1,62 @@
+// Connect to socket.io server
+const socket = io();
+
+// Use different names to avoid duplicate declaration!
+const { username: uname, room: rname } = window.USER;
+
+console.log('Client USER:', uname, rname);
+
+socket.emit('joinRoom', { username: uname, room: rname });
+
+// DOM elements
 const chatForm = document.getElementById('chat-form');
 const chatMessages = document.querySelector('.chat-messages');
 const roomName = document.getElementById('room-name');
-const userList = document.getElementById('users');
+const usersList = document.getElementById('users');
 
-// Get username and room from URL
-const { username, room } = Qs.parse(location.search, {
-  ignoreQueryPrefix: true
+// Listen for messages from server
+socket.on('message', message => {
+  console.log('Message:', message);
+  outputMessage(message);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
 });
 
-if (!username || !room) {
-  alert("Missing username or room. Redirecting to login...");
-  window.location.href = "/";
-}
-
-const socket = io();
-
-// Join chatroom
-socket.emit('joinRoom', { username, room });
-
-// Get room and users
+// Update room + users
 socket.on('roomUsers', ({ room, users }) => {
   outputRoomName(room);
   outputUsers(users);
 });
 
-// Message from server
-socket.on('message', message => {
-  console.log(message);
-  outputMessage(message);
-
-  // Scroll down
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-});
-
-// Message submit
+// Send message
 chatForm.addEventListener('submit', e => {
   e.preventDefault();
+  const msg = e.target.elements.msg.value.trim();
+  if (!msg) return;
 
-  // Get message text
-  const msg = e.target.elements.msg.value;
-
-  // Emit message to server
   socket.emit('chatMessage', msg);
 
-  // Clear input
   e.target.elements.msg.value = '';
   e.target.elements.msg.focus();
 });
 
-// Output message to DOM
+// Helpers
 function outputMessage(message) {
   const div = document.createElement('div');
   div.classList.add('message');
   div.innerHTML = `<p class="meta">${message.username} <span>${message.time}</span></p>
-  <p class="text">
-    ${message.text}
-  </p>`;
+  <p class="text">${message.text}</p>`;
   chatMessages.appendChild(div);
 }
 
-// Add room name to DOM
 function outputRoomName(room) {
   roomName.innerText = room;
 }
 
-// Add users to DOM
 function outputUsers(users) {
-  userList.innerHTML = `
-    ${users.map(user => `<li>${user.username}</li>`).join('')}
-  `;
-  console.log("User has connected");
+  usersList.innerHTML = '';
+  users.forEach(user => {
+    const li = document.createElement('li');
+    li.innerText = user.username;
+    usersList.appendChild(li);
+  });
 }

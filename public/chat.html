@@ -6,7 +6,6 @@
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"
-    integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk="
     crossorigin="anonymous"
   />
   <link rel="stylesheet" href="css/style.css" />
@@ -15,7 +14,7 @@
     body {
       margin: 0;
       padding: 0;
-      background-image: url('images/whats5.jpg');
+      background-image: url('images/whats5.jpg'); /* Make sure this file exists! */
       background-size: cover;
       background-repeat: no-repeat;
       background-attachment: fixed;
@@ -120,25 +119,29 @@
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.9.2/qs.min.js" crossorigin="anonymous"></script>
+  <!-- Qs -->
+  <script src="https://cdn.jsdelivr.net/npm/qs@6.11.2/dist/qs.js"></script>
+
+  <!-- Socket.IO client -->
   <script src="/socket.io/socket.io.js"></script>
 
+  <!-- Get username + room -->
   <script>
-    // Parse query parameters from URL
     const { username, room } = Qs.parse(location.search, {
       ignoreQueryPrefix: true,
     });
 
-    // If username or room is missing, redirect back to login
+    console.log('Parsed:', username, room);
+
     if (!username || !room) {
       alert("Missing username or room. Redirecting to login.");
       window.location.href = "/";
     }
 
-    // Pass data to main.js through window object (optional method)
     window.USER = { username, room };
   </script>
 
+  <!-- Chat logic -->
   <script src="js/main.js"></script>
 </body>
 </html>

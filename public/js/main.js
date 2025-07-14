@@ -1,5 +1,5 @@
 // Connect to socket.io server
-const socket = io();
+const socket = io("https://snapshot-realtime-chat.onrender.com");
 
 // Use different names to avoid duplicate declaration!
 const { username: uname, room: rname } = window.USER;
